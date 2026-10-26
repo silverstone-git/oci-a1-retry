@@ -33,6 +33,17 @@ jobs:
           chmod 600 ~/.oci/key.pem
 
       - name: Apply Stack
+        env:
+          SUPPRESS_LABEL_WARNING: "True"
         run: |
           oci resource-manager job create-apply-job \
-            --stack-id ${{ secrets.OCI_STACK_ID }}
+            --stack-id ${{ secrets.OCI_STACK_ID }} \
+            --execution-plan-strategy AUTO_APPROVED \
+            --wait-for-state SUCCEEDED \
+            --wait-for-state FAILED \
+            --max-wait-seconds 600
+          
+
+concurrency:
+  group: oci-retry
+  cancel-in-progress: false
